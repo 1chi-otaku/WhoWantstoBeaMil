@@ -4,19 +4,28 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace WhoWantstoBeaMil
 {
     public partial class Form1 : Form
     {
         private Label[] labels = new Label[15];
-        public Question[] questions= new Question[15];
+        public Question[] questions { get; set; }
         public int current_question = 0;
+
+        MainMenu MyMenu;
+        MenuItem questions_edit;
+
+        QuestionRedactor QuestionRedactor;
         public Form1()
         {
+            questions= new Question[15];
             InitializeComponent();
 
             int summ = 1000000;
@@ -41,6 +50,14 @@ namespace WhoWantstoBeaMil
             labels[0].ForeColor = Color.Red;
             InitQuestions();
             LoadQuestion();
+
+            MyMenu = new MainMenu();
+            questions_edit = new MenuItem("Редактировать вопросы");
+            questions_edit.Click += new EventHandler(EditMenu);
+            MyMenu.MenuItems.Add(questions_edit);
+
+
+            Menu = MyMenu;
         }
         private void InitQuestions()
         {
@@ -61,6 +78,22 @@ namespace WhoWantstoBeaMil
             questions[14] = new Question("Участник какого из перечисленных спортивных состязаний экипирован винтовкой?", "Биатлон", "Бейсбол", "Футбол", "SMB", "A");
         }
 
+        private void EditMenu(object sender, EventArgs e)
+        {
+            QuestionRedactor = new QuestionRedactor();
+            QuestionRedactor.par = this;
+            QuestionRedactor.questions = questions;
+            DialogResult res = QuestionRedactor.ShowDialog();
+            for (int i = 0; i < questions.Length; i++)
+            {
+                QuestionRedactor.GetListBox().Items.Add(questions[i]);
+            }
+            if (res == DialogResult.OK)
+            {
+                //OilSumm = oil_form.OilSumm;
+                //SummChanged();
+            }
+        }
         private void button7_Click(object sender, EventArgs e)//A
         {
             if (questions[current_question].correct_answer == "A")
